@@ -1,93 +1,288 @@
-# CICD-AGENTIC
+# AI-Driven CI/CD Build Platform for Embedded Projects
 
+## 1. Updated Project Description
 
+### Project Title
+**AI-Driven Self-Hosted CI/CD Build Platform for Embedded Software Projects**
 
-## Getting started
+### One-Line Description
+Design and implement a self-hosted CI/CD platform for embedded software projects where builds are executed on containerized infrastructure, logs and artifacts are collected automatically, and an AI agent analyzes failed builds, proposes fixes, validates them in a sandbox environment, and opens a GitLab Merge Request when the fix is successful.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+---
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 2. Project Context
 
-## Add your files
+Embedded software projects are often difficult to build and validate because they involve long compilation times, large dependency chains, complex toolchains, platform-specific configurations, and verbose logs that are hard to analyze manually. Technologies such as Yocto, QNX, and AOSP are commonly used in embedded environments, but they require significant build infrastructure and careful dependency management.
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+In real industrial environments, dedicated CI/CD platforms are used to automate build execution, testing, artifact management, and failure analysis. However, for internship and academic purposes, the objective is to build a realistic small-scale version of such a platform using limited hardware resources such as laptops, open-source tools, and lightweight infrastructure.
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/yassin.dammak473/cicd-agentic.git
-git branch -M main
-git push -uf origin main
-```
+This project aims to simulate how large engineering teams automate embedded build validation by combining:
 
-## Integrate with your tools
+- GitLab CI/CD for source control and pipeline orchestration.
+- GitLab Runner with Docker and Kubernetes execution modes.
+- Lightweight Kubernetes for local build orchestration.
+- Embedded build systems such as Yocto, QNX, or AOSP-like sample projects.
+- Build optimization mechanisms such as shared caches and artifact reuse.
+- Log collection, monitoring, and visualization.
+- An agentic AI workflow capable of analyzing failed logs and suggesting or applying fixes.
+- Automated validation through rebuilds and Merge Request creation.
 
-* [Set up project integrations](https://gitlab.com/yassin.dammak473/cicd-agentic/-/settings/integrations)
+---
 
-## Collaborate with your team
+## 3. Main Objective
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+The main objective is to design, deploy, and demonstrate a self-hosted CI/CD platform capable of building embedded projects, detecting failures, analyzing logs using an AI-driven agent, validating proposed fixes, and automating the feedback loop through GitLab.
 
-## Test and Deploy
+The final platform should be able to:
 
-Use the built-in continuous integration in GitLab.
+1. Trigger embedded builds from GitLab commits or Merge Requests.
+2. Execute builds inside Docker containers or Kubernetes pods.
+3. Collect build logs, reports, and generated artifacts.
+4. Detect failed build stages and extract relevant error sections.
+5. Use an AI agent to analyze logs and identify probable root causes.
+6. Suggest fixes for configuration, dependency, script, or source-level issues.
+7. Optionally apply fixes in a sandbox branch.
+8. Re-run the build to validate the proposed fix.
+9. Automatically create a GitLab Merge Request when the fix passes validation.
+10. Present build status, metrics, and logs through dashboards.
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+---
 
-***
+## 4. Target Architecture
 
-# Editing this README
+### 4.1 High-Level Components
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+The platform should include the following components:
 
-## Suggestions for a good README
+#### GitLab Repository
+Hosts the embedded project source code, CI/CD pipeline definitions, build scripts, and AI remediation scripts.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+#### GitLab CI/CD Pipelines
+Defines pipeline stages such as preparation, build, test, log collection, AI analysis, fix validation, and Merge Request creation.
 
-## Name
-Choose a self-explaining name for your project.
+#### GitLab Runner
+Executes CI jobs using either:
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+- Docker executor for simple containerized jobs.
+- Kubernetes executor for scalable and isolated CI pods.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+#### Docker Images
+Provide reproducible build environments containing required toolchains, build dependencies, scripts, and automation tools.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+#### Lightweight Kubernetes Cluster
+Runs CI jobs as isolated pods. The cluster can be deployed using tools such as k3s, kind, or Minikube depending on available hardware.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+#### Embedded Build Project
+A representative embedded project should be used for the proof of concept. The preferred target is a Yocto-based project because it is open-source and supports reusable build cache mechanisms.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+#### Artifact and Cache Storage
+Stores build outputs, logs, intermediate files, and reusable build cache. For Yocto, this may include `sstate-cache` and download directories.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+#### AI Agent Service
+Analyzes failed build logs, classifies the failure, proposes corrective actions, modifies files when allowed, launches validation builds, and prepares a Merge Request.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+#### Monitoring Stack
+Collects and visualizes system and pipeline metrics. Grafana can be used to present dashboards for build duration, success rate, failed stages, resource usage, and AI fix attempts.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+---
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## 5. Functional Requirements
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### 5.1 CI/CD Pipeline Requirements
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+The platform must support:
 
-## License
-For open source projects, say how it is licensed.
+- Triggering pipelines on commit, branch update, or Merge Request.
+- Running builds using GitLab Runner.
+- Running jobs inside Docker containers.
+- Optionally running jobs inside Kubernetes pods.
+- Separating the pipeline into clear stages.
+- Publishing build artifacts and logs.
+- Storing failure reports for AI analysis.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Recommended pipeline stages:
+
+1. `prepare`: initialize environment, dependencies, and cache.
+2. `build`: execute the embedded project build.
+3. `test`: run available unit, integration, or smoke tests.
+4. `collect_logs`: extract logs and error summaries.
+5. `ai_analyze`: analyze failures and generate a fix proposal.
+6. `apply_fix`: apply safe changes in a sandbox branch.
+7. `validate_fix`: re-run the relevant build/test scope.
+8. `create_mr`: open a GitLab Merge Request if validation succeeds.
+
+### 5.2 Embedded Build Requirements
+
+The project should demonstrate an embedded build workflow using at least one of the following:
+
+- Yocto sample image or custom layer.
+- Simplified QNX-like project structure, if QNX tooling is not available.
+- AOSP-inspired build simulation, if full AOSP build is too heavy.
+- A smaller C/C++ embedded project with cross-compilation as a fallback.
+
+The build environment should include:
+
+- Dockerized toolchain setup.
+- Build scripts.
+- Reusable cache location.
+- Generated artifacts.
+- Reproducible build instructions.
+
+### 5.3 AI Agent Requirements
+
+The AI agent should implement an agentic workflow with the following capabilities:
+
+1. Read the failed job log and pipeline metadata.
+2. Extract relevant error messages from large logs.
+3. Classify the type of failure, such as:
+   - Missing dependency.
+   - Compilation error.
+   - Linker error.
+   - Configuration issue.
+   - Test failure.
+   - Environment or infrastructure error.
+4. Generate a root-cause explanation.
+5. Suggest one or more possible fixes.
+6. Apply safe automated fixes for predefined categories.
+7. Commit changes to a sandbox branch.
+8. Trigger a validation pipeline.
+9. Create a GitLab Merge Request if the validation succeeds.
+10. Add a clear AI-generated explanation to the Merge Request description.
+
+For safety and reliability, the AI agent should not directly modify protected branches. All generated fixes must go through a sandbox branch and Merge Request workflow.
+
+### 5.4 Monitoring and Dashboard Requirements
+
+A Grafana dashboard should show at least:
+
+- Number of pipeline executions.
+- Build success and failure rates.
+- Average build duration.
+- Failed stages distribution.
+- Resource usage of CI runners or Kubernetes nodes.
+- Number of AI analysis attempts.
+- Number of successful AI-generated fixes.
+- Recent failed builds with root-cause summaries.
+
+---
+
+## 6. Non-Functional Requirements
+
+### Reliability
+The platform should handle repeated builds, failed jobs, and restarted runners without losing logs or artifacts.
+
+### Reproducibility
+Build environments should be containerized and documented so the same build can be reproduced by another intern or engineer.
+
+### Scalability
+The design should support future extension to multiple runners, more powerful servers, and additional embedded projects.
+
+### Security
+Secrets such as GitLab tokens, API keys, and credentials must be stored securely using GitLab CI/CD variables or Kubernetes secrets. Secrets must never be committed to the repository.
+
+### Maintainability
+The repository should contain clear documentation, scripts, architecture diagrams, and setup instructions.
+
+### Resource Awareness
+Because the project targets limited hardware, the implementation should minimize unnecessary rebuilds and use caching where possible.
+
+---
+
+## 7. Expected Deliverables
+
+By the end of the internship, the team should deliver:
+
+1. A working GitLab repository with CI/CD pipeline definitions.
+2. A Dockerized embedded build environment.
+3. A local lightweight Kubernetes or Docker-based runner setup.
+4. A sample embedded build project integrated into the pipeline.
+5. Automated log collection and failure extraction scripts.
+6. An AI agent prototype for log analysis and remediation.
+7. Sandbox branch fix workflow.
+8. Automatic Merge Request creation for validated fixes.
+9. Grafana dashboard or equivalent monitoring view.
+10. Technical documentation explaining installation, usage, architecture, and limitations.
+11. Final demo scenario showing a failed build, AI diagnosis, proposed fix, validation, and Merge Request creation.
+
+---
+
+## 8. Suggested Proof-of-Concept Demo
+
+A strong final demonstration could follow this scenario:
+
+1. A developer pushes a change that intentionally breaks the embedded build.
+2. GitLab CI/CD triggers the build pipeline.
+3. The build fails during compilation, configuration, or dependency resolution.
+4. Logs are collected and passed to the AI analysis stage.
+5. The AI agent identifies the error and proposes a fix.
+6. The fix is applied on a new sandbox branch.
+7. A validation pipeline runs automatically.
+8. If the pipeline succeeds, the system creates a Merge Request.
+9. The Merge Request includes:
+   - Failure summary.
+   - Root-cause explanation.
+   - Files changed.
+   - Validation result.
+   - Any remaining risks or manual review notes.
+10. The dashboard shows the failed build, AI attempt, and final successful validation.
+
+---
+
+## 9. Recommended Technologies
+
+### Core Platform
+- GitLab CE or GitLab SaaS project.
+- GitLab CI/CD.
+- GitLab Runner.
+- Docker.
+- Docker Compose.
+- k3s, kind, or Minikube for lightweight Kubernetes.
+
+### Embedded Build
+- Yocto Project sample build as primary option.
+- Cross-compiled C/C++ embedded sample as fallback.
+- Shared build cache and artifact directories.
+
+### AI and Automation
+- Python for orchestration scripts.
+- GitLab REST API for branch, commit, pipeline, and Merge Request operations.
+- LLM API or local LLM depending on availability.
+- Rule-based fallback logic for common build failures.
+
+### Observability
+- Grafana.
+- Prometheus or GitLab metrics export.
+- GitLab artifacts and job logs.
+
+---
+
+## 10. Success Criteria
+
+The project is considered successful if:
+
+- A commit can trigger a GitLab CI/CD pipeline.
+- The pipeline can build an embedded project inside a controlled environment.
+- Failed build logs are automatically collected and summarized.
+- The AI agent can analyze at least three predefined failure categories.
+- The system can apply at least one safe automated fix.
+- The validation build can confirm whether the fix works.
+- A GitLab Merge Request can be created automatically after successful validation.
+- A dashboard or report provides visibility into build status and AI remediation results.
+- The setup and usage are clearly documented.
+
+---
+
+## 11. Stretch Goals
+
+If time allows, the interns may add:
+
+- Multiple embedded project templates.
+- Better log chunking and retrieval-augmented analysis.
+- Historical build failure database.
+- AI confidence scoring.
+- Human approval before applying fixes.
+- Slack, Teams, or email notifications.
+- Parallel build execution on multiple runners.
+- Kubernetes autoscaling simulation.
+- Support for more failure categories.
+- Security scanning for generated fixes.
