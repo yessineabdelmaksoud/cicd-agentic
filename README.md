@@ -1,5 +1,12 @@
 # AI-Driven CI/CD Build Platform for Embedded Projects
 
+> **Implementation status:** an early, working prototype of this platform
+> already exists — see [`IMPLEMENTATION.md`](IMPLEMENTATION.md) for the
+> actual deployed architecture, setup instructions, and how to run a live
+> test. This document below is the original project brief/requirements.
+> `docs/8week-plan.md` is one team plan; `scrum/` (this repo) has a second,
+> 6-week/3-sprint version — worth reconciling into one before Sprint 2.
+
 ## 1. Updated Project Description
 
 ### Project Title

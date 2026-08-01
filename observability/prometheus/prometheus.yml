@@ -1,0 +1,44 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: "dev"
+
+rule_files:
+  - /etc/prometheus/rules/*.yaml
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # AI Agent metrics — cluster service DNS, not host.docker.internal (fix.md FIX-2:
+  # this pod can't resolve the host's Docker network, and it doesn't need to —
+  # the agent runs as a K3s pod reachable by its short service name).
+  - job_name: "ai-agent"
+    static_configs:
+      - targets: ["agent:8000"]
+    metrics_path: /metrics
+
+  # Worker metrics — separate scrape target, NOT the same as ai-agent above.
+  # Every LangGraph node metric (fix_attempts, gate_rejection, llm_cost,
+  # node_duration) only ever increments inside the worker process; the agent
+  # API's own registry stays permanently at zero for these (confirmed live —
+  # prometheus_client's registry is per-process and agent/worker are separate
+  # pods with no shared filesystem for multiprocess mode).
+  - job_name: "ai-worker"
+    static_configs:
+      - targets: ["worker-metrics:9100"]
+    metrics_path: /metrics
+
+  # Redis metrics (via redis_exporter si dispo)
+  - job_name: "redis"
+    static_configs:
+      - targets: ["redis:6379"]
+
+  # MinIO metrics
+  - job_name: "minio"
+    metrics_path: /minio/v2/metrics/cluster
+    static_configs:
+      - targets: ["minio:9000"]

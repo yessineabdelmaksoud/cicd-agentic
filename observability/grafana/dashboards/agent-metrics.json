@@ -1,0 +1,117 @@
+{
+  "title": "Agent Metrics",
+  "timezone": "browser",
+  "panels": [
+    {
+      "title": "LLM Latency by Agent Role",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(agent_llm_duration_seconds_bucket[5m])) by (le, agent_role))",
+          "legendFormat": "{{agent_role}}"
+        }
+      ]
+    },
+    {
+      "title": "Reviewer Confidence Distribution",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(agent_reviewer_confidence_bucket[5m])) by (le)",
+          "legendFormat": "{{le}}"
+        }
+      ]
+    },
+    {
+      "title": "Fix Outcomes",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(agent_fix_attempts_total) by (outcome)",
+          "legendFormat": "{{outcome}}"
+        }
+      ]
+    },
+    {
+      "title": "Sandbox Pass Rate",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(agent_fix_attempts_total{outcome=\"pass\"}) / sum(agent_fix_attempts_total{outcome=~\"pass|fail\"}) * 100",
+          "legendFormat": "Sandbox pass %"
+        }
+      ]
+    },
+    {
+      "title": "MR Merged Rate (fix.md FIX-14 — acceptance means merged, not opened)",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(agent_mr_merged_total) / sum(agent_mr_opened_total) * 100",
+          "legendFormat": "Merged %"
+        }
+      ]
+    },
+    {
+      "title": "Rules-First Short-Circuit Rate (diagnosed_by_rule vs diagnosed_by_llm)",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(agent_fix_attempts_total{outcome=\"diagnosed_by_rule\"}) / sum(agent_fix_attempts_total{outcome=~\"diagnosed_by_rule|diagnosed_by_llm\"}) * 100",
+          "legendFormat": "Zero-LLM-call %"
+        }
+      ]
+    },
+    {
+      "title": "Objective Gate Rejection Breakdown",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(increase(agent_gate_rejection_total[1h])) by (check)",
+          "legendFormat": "{{check}}"
+        }
+      ]
+    },
+    {
+      "title": "Estimated Cost per Remediation (USD)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(increase(agent_llm_cost_usd_total[1h])) / sum(increase(agent_fix_attempts_total{outcome=~\"pass|fail|manual_review\"}[1h]))",
+          "legendFormat": "$/remediation"
+        }
+      ]
+    },
+    {
+      "title": "Queue Depth (jobs waiting in Redis)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "targets": [
+        {
+          "expr": "agent_queue_depth",
+          "legendFormat": "queued"
+        }
+      ]
+    },
+    {
+      "title": "LLM Cost by Role/Model",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "targets": [
+        {
+          "expr": "sum(rate(agent_llm_cost_usd_total[1h])) by (agent_role, model)",
+          "legendFormat": "{{agent_role}} ({{model}})"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 36
+}

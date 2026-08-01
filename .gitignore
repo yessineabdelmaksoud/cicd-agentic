@@ -1,0 +1,12 @@
+# Secrets — never commit real credentials (fix.md security §14)
+.env
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local build artifacts
+*.log
+build/
+zephyr-test/build/

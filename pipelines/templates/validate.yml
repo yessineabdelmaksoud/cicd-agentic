@@ -1,0 +1,32 @@
+# =============================================================================
+# validate.yml — sandbox validation job template (fix.md FIX-7)
+#
+# Runs ONLY on ai-fix/* branches (the agent's sandbox branches created by
+# apply_patch). Rebuilds, then POSTs the result to /callback — this call IS
+# the trigger for Run B (evaluate_result → open_mr/post_comment). Nothing
+# polls: the worker that ran Run A already returned after trigger_rebuild.
+#
+# $CI_PIPELINE_ID here is the sandbox pipeline's own ID — the same value
+# trigger_rebuild.py received back from POST /projects/:id/pipeline and used
+# as the Redis key for the saved Run-A state, so no extra variable plumbing
+# is needed to correlate the two.
+#
+# NEVER re-include notify.yml here — a failed sandbox build must not
+# re-trigger Run A (that's the reaper/attempt-cap's job, not this one's).
+#
+# Required CI/CD variables: same as notify.yml (AGENT_URL, WEBHOOK_SECRET, BUILD_TYPE).
+# =============================================================================
+
+.validate_on_ai_fix_branch:
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^ai-fix\//'
+  after_script:
+    - |
+      STATUS="failed"
+      if [ "$CI_JOB_STATUS" = "success" ]; then STATUS="success"; fi
+
+      curl -sf -X POST "${AGENT_URL}/callback" \
+        -H "Content-Type: application/json" \
+        -H "X-Gitlab-Token: ${WEBHOOK_SECRET}" \
+        -d "{\"sandbox_pipeline_id\": ${CI_PIPELINE_ID}, \"sandbox_branch\": \"${CI_COMMIT_REF_NAME}\", \"status\": \"${STATUS}\", \"build_type\": \"${BUILD_TYPE}\"}" \
+        && echo "✅ Callback sent" || echo "⚠️  WARNING: failed to POST /callback"

@@ -1,0 +1,51 @@
+{
+  "title": "Build Health",
+  "timezone": "browser",
+  "panels": [
+    {
+      "title": "Build Success / Failure Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(increase(agent_webhooks_total[1h])) by (build_type)",
+          "legendFormat": "{{build_type}} Failures"
+        }
+      ]
+    },
+    {
+      "title": "Agent Triggers per Hour",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(increase(agent_webhooks_total[1h]))",
+          "legendFormat": "Triggers/hr"
+        }
+      ]
+    },
+    {
+      "title": "Active Jobs",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(agent_active_jobs)",
+          "legendFormat": "Active"
+        }
+      ]
+    },
+    {
+      "title": "Build Duration (Histogram)",
+      "type": "heatmap",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(agent_node_duration_seconds_bucket[5m])) by (le)",
+          "legendFormat": "{{le}}"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 36
+}

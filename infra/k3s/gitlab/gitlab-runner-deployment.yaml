@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /tmp/kompose convert -f docker-compose.yml -o k3s/
+    kompose.version: 1.32.0 (765fde254)
+  labels:
+    io.kompose.service: gitlab-runner
+  name: gitlab-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: gitlab-runner
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /tmp/kompose convert -f docker-compose.yml -o k3s/
+        kompose.version: 1.32.0 (765fde254)
+      labels:
+        io.kompose.network/infra-cicd-net: "true"
+        io.kompose.service: gitlab-runner
+    spec:
+      serviceAccountName: gitlab-runner
+      containers:
+        - image: gitlab/gitlab-runner:v17.1.0
+          name: gitlab-runner
+          resources:
+            limits:
+              memory: "536870912"
+          volumeMounts:
+            - mountPath: /etc/gitlab-runner
+              name: runner-config
+            - mountPath: /var/run/docker.sock
+              name: gitlab-runner-claim1
+      restartPolicy: Always
+      volumes:
+        - name: runner-config
+          persistentVolumeClaim:
+            claimName: runner-config
+        - name: gitlab-runner-claim1
+          persistentVolumeClaim:
+            claimName: gitlab-runner-claim1

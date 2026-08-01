@@ -1,0 +1,49 @@
+# =============================================================================
+# notify.yml — shared "on build failure" job template (fix.md FIX-4/FIX-5/FIX-13)
+#
+# Include from a demo project's .gitlab-ci.yml and extend `.notify_on_failure`
+# in your build job (or add its after_script via `!reference`). On failure it:
+#   1. Uploads build.log to MinIO.
+#   2. If TASK_LOG_GLOB matches a file (Yocto: the per-task log.do_* — the
+#      real error is usually there, not in the top-level summary), uploads
+#      that too, alongside build.log.
+#   3. POSTs /webhook to the agent WITH the shared secret header, so a forged
+#      failure on the network can't spend LLM budget (fix.md FIX-13).
+#
+# Required CI/CD variables (Settings > CI/CD > Variables — mask WEBHOOK_SECRET):
+#   MINIO_URL       e.g. http://minio:9000 (cluster service DNS — this deployment
+#                   runs single-namespace, so the short name resolves fine)
+#   MINIO_BUCKET    build-logs
+#   AGENT_URL       e.g. http://agent:8000
+#   WEBHOOK_SECRET  shared secret — must match the agent's WEBHOOK_SECRET env var
+#   BUILD_TYPE      yocto | zephyr | qnx
+# Optional:
+#   MINIO_ACCESS_KEY / MINIO_SECRET_KEY   defaults: admin / password123
+#   TASK_LOG_GLOB   e.g. "tmp/log/cooker/*/log.do_*" for Yocto
+# =============================================================================
+
+.notify_on_failure:
+  after_script:
+    - |
+      if [ "$CI_JOB_STATUS" = "failed" ]; then
+        echo "Build failed — uploading logs and notifying the AI agent"
+
+        LOG_KEY="pipeline-${CI_PIPELINE_ID}-job-${CI_JOB_ID}.log"
+        mc alias set aiagent "${MINIO_URL}" "${MINIO_ACCESS_KEY:-admin}" "${MINIO_SECRET_KEY:-password123}" --api s3v4
+        mc cp build.log "aiagent/${MINIO_BUCKET}/${LOG_KEY}" || echo "WARNING: no build.log to upload"
+
+        TASK_LOG_JSON="null"
+        if [ -n "${TASK_LOG_GLOB:-}" ]; then
+          TASK_LOG_FILE=$(ls -t ${TASK_LOG_GLOB} 2>/dev/null | head -n1 || true)
+          if [ -n "$TASK_LOG_FILE" ]; then
+            TASK_LOG_KEY="pipeline-${CI_PIPELINE_ID}-job-${CI_JOB_ID}-task.log"
+            mc cp "$TASK_LOG_FILE" "aiagent/${MINIO_BUCKET}/${TASK_LOG_KEY}" && TASK_LOG_JSON="\"${TASK_LOG_KEY}\""
+          fi
+        fi
+
+        curl -sf -X POST "${AGENT_URL}/webhook" \
+          -H "Content-Type: application/json" \
+          -H "X-Gitlab-Token: ${WEBHOOK_SECRET}" \
+          -d "{\"pipeline_id\": ${CI_PIPELINE_ID}, \"project_id\": ${CI_PROJECT_ID}, \"commit_sha\": \"${CI_COMMIT_SHA}\", \"branch\": \"${CI_COMMIT_REF_NAME}\", \"build_type\": \"${BUILD_TYPE}\", \"failed_job_id\": ${CI_JOB_ID}, \"failed_job_name\": \"${CI_JOB_NAME}\", \"log_path\": \"${LOG_KEY}\", \"task_log_path\": ${TASK_LOG_JSON}}" \
+          && echo "✅ Agent notified" || echo "⚠️  WARNING: failed to notify agent"
+      fi

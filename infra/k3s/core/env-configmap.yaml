@@ -1,0 +1,20 @@
+# Non-secret configuration only — credentials live in the `env-secret` Secret
+# (see infra/scripts/apply-env-secret.sh), never here (fix.md security §14).
+apiVersion: v1
+data:
+  # Cluster service DNS, not host.docker.internal (fix.md FIX-2). Everything
+  # in this deployment lives in the `default` namespace, so the short service
+  # name resolves fine — no need for the full .svc.cluster.local FQDN here.
+  AGENT_EXTERNAL_URL: http://agent:8000
+  AGENT_PORT: '8000'
+  GITLAB_EXTERNAL_URL: http://gitlab
+  GITLAB_PROJECT_ID: '2'
+  MINIO_ENDPOINT: http://minio:9000
+  MINIO_ROOT_USER: admin
+  REDIS_URL: redis://redis:6379/0
+  MAX_ATTEMPTS: '2'
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: agent-env
+  name: env

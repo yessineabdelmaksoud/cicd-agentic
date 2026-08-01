@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /tmp/kompose convert -f docker-compose.yml -o k3s/
+    kompose.version: 1.32.0 (765fde254)
+  labels:
+    io.kompose.service: loki
+  name: loki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: loki
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /tmp/kompose convert -f docker-compose.yml -o k3s/
+        kompose.version: 1.32.0 (765fde254)
+      labels:
+        io.kompose.network/infra-cicd-net: 'true'
+        io.kompose.service: loki
+    spec:
+      containers:
+      - args:
+        - -config.file=/etc/loki/local-config.yaml
+        image: grafana/loki:3.1.0
+        name: loki
+        ports:
+        - containerPort: 3100
+          protocol: TCP
+        resources:
+          limits:
+            memory: '268435456'
+        volumeMounts:
+        - mountPath: /tmp/loki
+          name: loki-data
+        - mountPath: /etc/loki/local-config.yaml
+          name: loki-claim1
+          readOnly: true
+      restartPolicy: Always
+      volumes:
+      - name: loki-data
+        persistentVolumeClaim:
+          claimName: loki-data
+      - hostPath:
+          path: /home/yessine/Documents/kpit stage/ai-cicd-embedded/observability/loki/loki-config.yaml
+          type: File
+        name: loki-claim1

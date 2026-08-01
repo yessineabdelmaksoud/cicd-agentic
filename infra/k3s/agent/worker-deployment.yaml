@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /tmp/kompose convert -f docker-compose.yml -o k3s/
+    kompose.version: 1.32.0 (765fde254)
+  labels:
+    io.kompose.service: worker
+  name: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: worker
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /tmp/kompose convert -f docker-compose.yml -o k3s/
+        kompose.version: 1.32.0 (765fde254)
+      labels:
+        io.kompose.network/infra-cicd-net: "true"
+        io.kompose.service: worker
+    spec:
+      containers:
+        - args:
+            - python
+            - worker.py
+          env:
+            - name: AGENT_EXTERNAL_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: AGENT_EXTERNAL_URL
+                  name: env
+            - name: AGENT_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: AGENT_PORT
+                  name: env
+            - name: GITLAB_EXTERNAL_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: GITLAB_EXTERNAL_URL
+                  name: env
+            - name: GITLAB_PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: GITLAB_PROJECT_ID
+                  name: env
+            - name: MAX_ATTEMPTS
+              valueFrom:
+                configMapKeyRef:
+                  key: MAX_ATTEMPTS
+                  name: env
+            - name: MINIO_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  key: MINIO_ENDPOINT
+                  name: env
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: MINIO_ROOT_USER
+                  name: env
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_URL
+                  name: env
+            # --- Secrets (fix.md security §14 — K8s Secret, not ConfigMap) ---
+            - name: GITLAB_PROJECT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: GITLAB_PROJECT_TOKEN
+                  name: env-secret
+            - name: GITLAB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: GITLAB_ROOT_PASSWORD
+                  name: env-secret
+            - name: GITLAB_RUNNER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: GITLAB_RUNNER_TOKEN
+                  name: env-secret
+                  optional: true
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: MINIO_ROOT_PASSWORD
+                  name: env-secret
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: OPENROUTER_API_KEY
+                  name: env-secret
+            - name: WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: WEBHOOK_SECRET
+                  name: env-secret
+          image: infra-worker:latest
+          imagePullPolicy: Never
+          name: worker
+          ports:
+            - containerPort: 9100
+              protocol: TCP
+          resources:
+            # requests, not just limits (fix.md FIX-16) — this is the process
+            # that runs the LangGraph nodes; it must not be the thing an OOM
+            # killer picks when a Yocto build pod is also fighting for RAM.
+            # 512Mi turned out too tight live: RQ's "work-horse" (the forked
+            # child that actually runs a job) got silently SIGKILLed — not a
+            # clean JobTimeoutException — mid an OpenRouter fallback chain,
+            # consistent with hitting the cgroup limit rather than a genuine
+            # node-wide shortage (11Gi was free at the time).
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "768Mi"
+              cpu: "500m"
+      restartPolicy: Always
