@@ -298,7 +298,7 @@ Run `make help` for the live list (auto-generated from the Makefile). Full refer
 | `make verify-day3` | Agent health/webhook/attempt-cap/metrics check script |
 | `make test` / `test-unit` / `test-integration` | Runs the pytest suite (mocked — no live cluster needed) |
 | `make demo` | Scripted demo: inject an error, wait, check for an MR |
-| `make inject-error type=<src_uri\|compile>` | Pushes a broken commit to `yocto-demo` |
+| `make inject-error p=<project> type=<src_uri\|compile>` | Pushes a broken commit to a demo project (`yocto-demo`, `zephyr-demo`, `qnx-demo`; defaults: `yocto-demo`, `src_uri`) |
 
 **Daily routine, once set up:** `make stop` at the end of the day, `make
 start` the next morning — that's it. Grafana/Prometheus/GitLab are all

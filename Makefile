@@ -127,8 +127,8 @@ test-integration: ## Tests d'intégration (LLM mockés)
 demo: ## Démonstration complète (inject error → agent → MR ouverte)
 	@bash scripts/demo.sh
 
-inject-error: ## Injecte une erreur dans le repo yocto-demo : make inject-error type=src_uri
-	@bash scripts/inject-error.sh "$(or $(type),src_uri)"
+inject-error: ## Injecte une erreur dans un projet démo : make inject-error p=zephyr-demo type=compile
+	@bash scripts/inject-error.sh "$(or $(p),yocto-demo)" "$(or $(type),src_uri)"
 
 # ---------------------------------------------------------------------------
 # Utilitaires

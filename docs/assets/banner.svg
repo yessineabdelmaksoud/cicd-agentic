@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300" font-family="'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="960" height="300" rx="14" fill="url(#bg)"/>
+
+  <text x="48" y="70" fill="#f8fafc" font-size="34" font-weight="700">cicd-agentic</text>
+  <text x="48" y="102" fill="#94a3b8" font-size="16">Self-hosted CI/CD for embedded builds, with an agent that turns red pipelines into reviewed merge requests.</text>
+
+  <!-- step boxes -->
+  <g font-size="14" text-anchor="middle">
+    <rect x="48"  y="156" width="148" height="76" rx="10" fill="#3f1d24" stroke="#f87171" stroke-width="1.5"/>
+    <text x="122" y="188" fill="#fecaca" font-weight="600">Build fails</text>
+    <text x="122" y="210" fill="#fca5a5" font-size="12">Yocto · Zephyr · QNX</text>
+
+    <rect x="232" y="156" width="148" height="76" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+    <text x="306" y="188" fill="#e2e8f0" font-weight="600">Diagnose</text>
+    <text x="306" y="210" fill="#94a3b8" font-size="12">rules first, LLM second</text>
+
+    <rect x="416" y="156" width="148" height="76" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+    <text x="490" y="188" fill="#e2e8f0" font-weight="600">Patch + review</text>
+    <text x="490" y="210" fill="#94a3b8" font-size="12">objective gate checks</text>
+
+    <rect x="600" y="156" width="148" height="76" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+    <text x="674" y="188" fill="#e2e8f0" font-weight="600">Sandbox rebuild</text>
+    <text x="674" y="210" fill="#94a3b8" font-size="12">on ai-fix/&lt;pipeline&gt;</text>
+
+    <rect x="784" y="156" width="128" height="76" rx="10" fill="#14352a" stroke="#34d399" stroke-width="1.5"/>
+    <text x="848" y="188" fill="#bbf7d0" font-weight="600">Merge request</text>
+    <text x="848" y="210" fill="#86efac" font-size="12">a human merges</text>
+  </g>
+
+  <g stroke="#64748b" stroke-width="2" marker-end="url(#arrow)">
+    <line x1="198" y1="194" x2="228" y2="194"/>
+    <line x1="382" y1="194" x2="412" y2="194"/>
+    <line x1="566" y1="194" x2="596" y2="194"/>
+    <line x1="750" y1="194" x2="780" y2="194"/>
+  </g>
+
+  <text x="48" y="270" fill="#64748b" font-size="13">K3s · GitLab CE · GitLab Runner · LangGraph · OpenRouter · MinIO · Redis · Prometheus · Grafana · Loki</text>
+</svg>
